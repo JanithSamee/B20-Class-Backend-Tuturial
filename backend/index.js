@@ -6,6 +6,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const UserModel = require("./models/user.model");
+const { authenticateUser } = require("./middleware/user.middleware");
 
 const app = express();
 
@@ -56,12 +57,9 @@ app.post("/login", async (req, res) => {
 });
 
 //Read
-app.post("/profile/", async (req, res) => {
-	const { key } = req.body;
-
-	const auth = jwt.verify(key, "12345678");
-	if (auth) {
-		const users = await UserModel.findOne({ _id: auth.id });
+app.post("/profile/", authenticateUser, async (req, res) => {
+	if (req.auth) {
+		const users = await UserModel.findOne({ _id: req.auth.id });
 		res.json(users);
 	} else {
 		return res.json({ msg: "User Authorization Failed" });

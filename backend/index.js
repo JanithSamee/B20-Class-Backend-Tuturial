@@ -3,6 +3,7 @@ require("./database/connect");
 const express = require("express");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const UserModel = require("./models/user.model");
 
@@ -37,7 +38,14 @@ app.post("/login", async (req, res) => {
 		const valid = await bcrypt.compare(password, user.password);
 
 		if (valid) {
-			const key = Math.round(Math.random() * 1000);
+			const key = await jwt.sign(
+				{
+					id: user._id,
+					username: user.username,
+				},
+				"12345678",
+				{ expiresIn: "1m" }
+			);
 			user.key = key;
 			await user.save();
 			return res.json({ msg: "Login Success!", key, id: user._id });
@@ -49,10 +57,15 @@ app.post("/login", async (req, res) => {
 
 //Read
 app.post("/profile/", async (req, res) => {
-	const { id, key } = req.body;
-	const users = await UserModel.findOne({ _id: id, key });
+	const { key } = req.body;
 
-	res.json(users);
+	const auth = jwt.verify(key, "12345678");
+	if (auth) {
+		const users = await UserModel.findOne({ _id: auth.id });
+		res.json(users);
+	} else {
+		return res.json({ msg: "User Authorization Failed" });
+	}
 });
 
 //Read

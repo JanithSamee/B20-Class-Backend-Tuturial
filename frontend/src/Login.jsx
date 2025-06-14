@@ -62,8 +62,8 @@ function Login() {
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		const res = await LoginUser(form);
-
-		console.log(res);
+		localStorage.setItem("key", res.key);
+		localStorage.setItem("id", res.id);
 	};
 
 	return (

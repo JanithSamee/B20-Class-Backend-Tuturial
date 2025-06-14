@@ -19,6 +19,9 @@ const UserSchema = new Schema({
 	age: {
 		type: Number,
 	},
+	key: {
+		type: Number,
+	},
 });
 
 const UserModel = new mongoose.model("User", UserSchema);

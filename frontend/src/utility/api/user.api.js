@@ -22,4 +22,14 @@ async function LoginUser(data) {
 	}
 }
 
-export { createUser, LoginUser };
+async function getProfile(data) {
+	try {
+		const res = await baseUrl.post("/profile", data);
+		return res.data;
+	} catch (error) {
+		console.log(error);
+		return "Error Occured";
+	}
+}
+
+export { createUser, LoginUser, getProfile };

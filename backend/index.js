@@ -37,11 +37,22 @@ app.post("/login", async (req, res) => {
 		const valid = await bcrypt.compare(password, user.password);
 
 		if (valid) {
-			return res.json({ msg: "Login Success!" });
+			const key = Math.round(Math.random() * 1000);
+			user.key = key;
+			await user.save();
+			return res.json({ msg: "Login Success!", key, id: user._id });
 		}
 
 		return res.json({ msg: "User Authentication Failed" });
 	}
+});
+
+//Read
+app.post("/profile/", async (req, res) => {
+	const { id, key } = req.body;
+	const users = await UserModel.findOne({ _id: id, key });
+
+	res.json(users);
 });
 
 //Read
